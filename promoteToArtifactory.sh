@@ -4,12 +4,12 @@ set -e
 
 ARTIFACTORY_API_URL=https://artifactory.six-group.net/artifactory/api/docker/docker-local/v2/promote
 
-usage() { echo "Usage: $0 [-k (artifactory api key)], -i (image name)], [-t (image tag)], [-r (image tag)}" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-k (artifactory api key)], -i (image name)], [-t (image tag)], [-r (image tag)] [-c (copy the image, default is move)]" 1>&2; exit 1; }
 
 parseOptions()
 {
 
-    while getopts "k:i:t:r:" opt; do
+    while getopts "k:i:t:r:c" opt; do
       case $opt in
         k)
           ARTIFACTORY_API_KEY="$OPTARG"
@@ -23,10 +23,16 @@ parseOptions()
         r)
           ARTIFACTORY_TARGET_REPO="$OPTARG"
           ;;
+        c)
+          COPY_MODE=true
+          ;;
+
       esac
     done
     shift $((OPTIND-1))
 }
+
+COPY_MODE=false
 
 parseOptions $@
 
@@ -55,7 +61,7 @@ http_code=$(curl -s -o out.json -w '%{http_code}' -k \
 -X POST ${ARTIFACTORY_API_URL} \
 -H "Content-Type: application/json"  \
 -H "X-JFrog-Art-Api: ${ARTIFACTORY_API_KEY}" \
--d "{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"false\"}")
+-d "{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"${COPY_MODE}\"}")
 
 echo "Response:  ${http_code}"
 cat out.json
