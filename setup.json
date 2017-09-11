@@ -1,0 +1,100 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-image-mgmt",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "from": {
+              "kind": "DockerImage",
+              "name": "artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt"
+            },
+            "importPolicy": {
+              "scheduled": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-image-mgmt-pipeline",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        },
+        "annotations": {
+          "pipeline.alpha.openshift.io/uses": "[{\"name\": \"jenkins\", \"kind\": \"DeploymentConfig\"}]"
+        }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git",
+            "ref": "master"
+          },
+          "sourceSecret": {
+            "name": "bitbucket-secret"
+          }
+        },
+        "strategy": {
+          "type": "JenkinsPipeline",
+          "jenkinsPipelineStrategy": {
+            "jenkinsfilePath": "Jenkinsfile"
+          }
+        }
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-image-mgmt-build",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git"
+          },
+          "sourceSecret": {
+            "name": "bitbucket-secret"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "six-rhel7:latest"
+            },
+            "forcePull": true
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "DockerImage",
+            "name": "artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt:latest"
+          }
+        }
+      }
+    }
+  ]
+}
