@@ -56,7 +56,7 @@ if [[ -z ${ARTIFACTORY_TARGET_REPO} ]]; then
   usage
 fi
 
-echo "pushing ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} to ${ARTIFACTORY_TARGET_REPO}."
+echo "promoting ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} to ${ARTIFACTORY_TARGET_REPO}. (copy=${COPY_MODE})"
 http_code=$(curl -s -o out.json -w '%{http_code}' -k \
 -X POST ${ARTIFACTORY_API_URL} \
 -H "Content-Type: application/json"  \
