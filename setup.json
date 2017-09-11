@@ -58,8 +58,8 @@
           "type": "Docker",
           "dockerStrategy": {
             "from": {
-              "kind": "ImageStreamTag",
-              "name": "six-rhel7:latest"
+              "kind": "DockerImage",
+              "name": "artifactory.six-group.net/openshift3/jenkins-slave-base-rhel7:latest"
             },
             "forcePull": true
           }
