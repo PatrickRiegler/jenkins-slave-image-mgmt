@@ -35,7 +35,7 @@ fi
 
 AUTH=
 if [[ -n "${SKOPEO_SRC_CREDENTIALS}" ]]; then
-  echo "Using src credentials from env variable SKOPEO_DEST_CREDENTIALS"
+  echo "Using src credentials from env variable SKOPEO_SRC_CREDENTIALS"
   AUTH="${AUTH} --src-creds=${SKOPEO_SRC_CREDENTIALS} "
 fi
 
