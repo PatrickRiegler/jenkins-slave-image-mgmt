@@ -33,4 +33,15 @@ if [[ -z ${TO_IMAGE} ]]; then
   usage
 fi
 
-skopeo copy --src-tls-verify=false docker://${FROM_IMAGE} docker://${TO_IMAGE}
+AUTH=
+if [[ -n "${SKOPEO_SRC_CREDENTIALS}" ]]; then
+  echo "Using src credentials from env variable SKOPEO_DEST_CREDENTIALS"
+  AUTH="${AUTH} --src-creds=${SKOPEO_SRC_CREDENTIALS} "
+fi
+
+if [[ -n "${SKOPEO_DEST_CREDENTIALS}" ]]; then
+  echo "Using dest credentials from env variable SKOPEO_DEST_CREDENTIALS"
+  AUTH="${AUTH} --dest-creds=${SKOPEO_DEST_CREDENTIALS} "
+fi
+
+skopeo copy --src-tls-verify=false ${AUTH} docker://${FROM_IMAGE} docker://${TO_IMAGE}
