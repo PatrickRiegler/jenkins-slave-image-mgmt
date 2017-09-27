@@ -36,7 +36,6 @@ COPY_MODE=false
 
 parseOptions $@
 
-
 if [[ -z ${DOCKER_IMAGE_NAME} ]]; then
   echo "The variable 'DOCKER_IMAGE_NAME' must be set"
   usage
@@ -64,11 +63,10 @@ if [[ -z ${AUTH} ]] && [[ -n ${ARTIFACTORY_BASIC_AUTH} ]]; then
 fi
 
 echo "promoting ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} to ${ARTIFACTORY_TARGET_REPO}. (copy=${COPY_MODE})"
-http_code=$(curl -s -o out.json -w '%{http_code}' -k \
--X POST ${ARTIFACTORY_API_URL} \
--H "Content-Type: application/json"  \
-${AUTH} \
--d "{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"${COPY_MODE}\"}")
+
+statement="http_code=\$(curl -s -o out.json -w '%{http_code}' -k -X POST ${ARTIFACTORY_API_URL} -H \"Content-Type: application/json\" ${AUTH} -d '{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"${COPY_MODE}\"}')"
+
+eval ${statement}
 
 echo "Response:  ${http_code}"
 cat out.json
