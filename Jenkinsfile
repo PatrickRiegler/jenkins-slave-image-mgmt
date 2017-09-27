@@ -10,8 +10,8 @@ node() {
 }
 node('jenkins-slave-image-mgmt') {
     stage("Promote images") {
-        withCredentials([string(credentialsId: 'SECRET_ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_API_KEY')]) {
-            sh "promoteToArtifactory.sh -i sdbi/jenkins-slave-image-mgmt -t latest -r sdbi-docker-release-local -c"
+        withCredentials([string(credentialsId: 'SECRET_ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_TOKEN')]) {
+            sh "promoteToArtifactory.sh -k ${env.ARTIFACTORY_TOKEN} -i sdbi/jenkins-slave-image-mgmt -t latest -r sdbi-docker-release-local -c"
         }
     }
 }
