@@ -36,10 +36,6 @@ COPY_MODE=false
 
 parseOptions $@
 
-if [[ -z ${ARTIFACTORY_API_KEY} ]]; then
-  echo "The variable 'ARTIFACTORY_API_KEY' must be set"
-  usage
-fi
 
 if [[ -z ${DOCKER_IMAGE_NAME} ]]; then
   echo "The variable 'DOCKER_IMAGE_NAME' must be set"
@@ -56,11 +52,22 @@ if [[ -z ${ARTIFACTORY_TARGET_REPO} ]]; then
   usage
 fi
 
+AUTH=
+if [[ -n ${ARTIFACTORY_API_KEY} ]]; then
+  echo "Using the API Key from variable 'ARTIFACTORY_API_KEY' for authentication."
+  AUTH="-H \"X-JFrog-Art-Api: ${ARTIFACTORY_API_KEY}\""
+fi
+
+if [[ -z ${AUTH} ]] && [[ -n ${ARTIFACTORY_BASIC_AUTH} ]]; then
+  echo "Using the Basic Auth from variable 'ARTIFACTORY_BASIC_AUTH' for authentication."
+  AUTH="-u ${ARTIFACTORY_BASIC_AUTH}"
+fi
+
 echo "promoting ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} to ${ARTIFACTORY_TARGET_REPO}. (copy=${COPY_MODE})"
 http_code=$(curl -s -o out.json -w '%{http_code}' -k \
 -X POST ${ARTIFACTORY_API_URL} \
 -H "Content-Type: application/json"  \
--H "X-JFrog-Art-Api: ${ARTIFACTORY_API_KEY}" \
+${AUTH} \
 -d "{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"${COPY_MODE}\"}")
 
 echo "Response:  ${http_code}"
