@@ -7,14 +7,8 @@ def jobContext = [:]
 
 node() {
     stage("Build images") {
-        // generate version number
-        jobContext.currentBuildVersion = sh(returnStdout: true, script: 'date +%Y%m%d%H%M%S  -u').trim()
         // get url of the image stream registry
         jobContext.registry = sh returnStdout: true, script: "oc get is jenkins-slave-image-mgmt --template='{{ .status.dockerImageRepository }}'"
-
-        // get git revision
-        checkout scm
-        jobContext.gitRevision = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 
         echo "${jobContext}"
 
