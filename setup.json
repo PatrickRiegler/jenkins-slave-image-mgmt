@@ -41,7 +41,7 @@
           "type": "Git",
           "git": {
             "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git",
-            "ref": "master"
+            "ref": "develop"
           },
           "sourceSecret": {
             "name": "bitbucket-secret"
@@ -80,7 +80,8 @@
         "source": {
           "type": "Git",
           "git": {
-            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git"
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git",
+            "ref": "develop"
           },
           "sourceSecret": {
             "name": "bitbucket-secret"
