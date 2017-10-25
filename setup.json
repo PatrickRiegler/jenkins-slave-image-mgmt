@@ -7,7 +7,7 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "jenkins-slave-base-rhel7",
+        "name": "openshift-jenkins-slave-base",
         "labels": {
           "sdbi": "jenkins-slave-image-mgmt"
         }
@@ -23,6 +23,23 @@
             "importPolicy": {
               "scheduled": true
             }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-image-mgmt",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest"
           }
         ]
       }
@@ -59,7 +76,7 @@
             "imageChange": {
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "jenkins-slave-image-mgmt:latest"
+                "name": "openshift-jenkins-slave-base:latest"
               }
             }
           }
@@ -92,7 +109,7 @@
           "dockerStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-              "name": "jenkins-slave-image-mgmt:latest"
+              "name": "openshift-jenkins-slave-base:latest"
             },
             "forcePull": true
           }
