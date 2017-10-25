@@ -116,8 +116,8 @@
         },
         "output": {
           "to": {
-            "kind": "DockerImage",
-            "name": "artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt:latest"
+            "kind": "ImageStreamTag",
+            "name": "jenkins-slave-image-mgmt:latest"
           }
         }
       }
