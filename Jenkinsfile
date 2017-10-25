@@ -19,7 +19,7 @@ node() {
         echo "${jobContext}"
 
         // start the s2i build config
-        openshiftBuild bldCfg: 'six-rhel-build', showBuildLogs: 'true', verbose: 'false', waitTime: '5', waitUnit: 'min'
+        openshiftBuild bldCfg: 'jenkins-slave-image-mgmt-build', showBuildLogs: 'true', verbose: 'false', waitTime: '5', waitUnit: 'min'
     }
 }
 
