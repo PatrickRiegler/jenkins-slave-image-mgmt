@@ -4,15 +4,53 @@
   "metadata": {},
   "items": [
     {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "openshift-jenkins-slave-base",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "from": {
+              "kind": "DockerImage",
+              "name": "artifactory.six-group.net/openshift3/jenkins-slave-base-rhel7:latest"
+            },
+            "importPolicy": {
+              "scheduled": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-image-mgmt",
+        "labels": {
+          "sdbi": "jenkins-slave-image-mgmt"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest"
+          }
+        ]
+      }
+    },
+    {
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
         "name": "jenkins-slave-image-mgmt-pipeline",
         "labels": {
           "sdbi": "jenkins-slave-image-mgmt"
-        },
-        "annotations": {
-          "pipeline.alpha.openshift.io/uses": "[{\"name\": \"jenkins\", \"kind\": \"DeploymentConfig\"}]"
         }
       },
       "spec": {
@@ -20,7 +58,7 @@
           "type": "Git",
           "git": {
             "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git",
-            "ref": "master"
+            "ref": "develop"
           },
           "sourceSecret": {
             "name": "bitbucket-secret"
@@ -31,7 +69,18 @@
           "jenkinsPipelineStrategy": {
             "jenkinsfilePath": "Jenkinsfile"
           }
-        }
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChange": {
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "openshift-jenkins-slave-base:latest"
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -48,7 +97,8 @@
         "source": {
           "type": "Git",
           "git": {
-            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git"
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-image-mgmt.git",
+            "ref": "develop"
           },
           "sourceSecret": {
             "name": "bitbucket-secret"
@@ -58,16 +108,16 @@
           "type": "Docker",
           "dockerStrategy": {
             "from": {
-              "kind": "DockerImage",
-              "name": "artifactory.six-group.net/openshift3/jenkins-slave-base-rhel7:latest"
+              "kind": "ImageStreamTag",
+              "name": "openshift-jenkins-slave-base:latest"
             },
             "forcePull": true
           }
         },
         "output": {
           "to": {
-            "kind": "DockerImage",
-            "name": "artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt:latest"
+            "kind": "ImageStreamTag",
+            "name": "jenkins-slave-image-mgmt:latest"
           }
         }
       }

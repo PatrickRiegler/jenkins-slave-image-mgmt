@@ -62,6 +62,10 @@ if [[ -z ${AUTH} ]] && [[ -n ${ARTIFACTORY_BASIC_AUTH} ]]; then
   AUTH="-u ${ARTIFACTORY_BASIC_AUTH}"
 fi
 
+if [[ -z ${AUTH} ]]; then
+  echo "No Authentication mode is used. If you need authentication, please set on of the two env variables: ARTIFACTORY_BASIC_AUTH / ARTIFACTORY_API_KEY"
+fi
+
 echo "promoting ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} to ${ARTIFACTORY_TARGET_REPO}. (copy=${COPY_MODE})"
 
 statement="http_code=\$(curl -s -o out.json -w '%{http_code}' -k -X POST ${ARTIFACTORY_API_URL} -H \"Content-Type: application/json\" ${AUTH} -d '{\"targetRepo\":\"${ARTIFACTORY_TARGET_REPO}\",\"dockerRepository\":\"${DOCKER_IMAGE_NAME}\",\"tag\":\"${DOCKER_IMAGE_TAG}\",\"copy\":\"${COPY_MODE}\"}')"
