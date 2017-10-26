@@ -6,7 +6,7 @@ properties([
 def jobContext = [:]
 
 node() {
-    stage("Build images") {
+    stage("Setup") {
         // get url of the image stream registry
         jobContext.registry = sh returnStdout: true, script: "oc get is jenkins-slave-image-mgmt --template='{{ .status.dockerImageRepository }}'"
 
