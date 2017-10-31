@@ -9,7 +9,7 @@ def jobContext = getInitialJobContext()
 node() {
     stage("Setup") {
         // get url of the image stream registry
-        jobContext.registry = getImageStreamRegistryUrl('jenkins-slave-image-mgmt ')
+        jobContext.registry = getImageStreamRegistryUrl('jenkins-slave-image-mgmt')
 
         echo "${jobContext}"
 
