@@ -1,14 +1,15 @@
-properties([
-        buildDiscarder(logRotator(numToKeepStr: '5')),
-        pipelineTriggers([pollSCM('H/15 * * * *')])
-])
+// load sdbi shared libraryssh://git@stash.six-group.net:22/sdbi/jenkins-shared-library.git
+library identifier: 'sdbi-shared-lib@develop', retriever: modernSCM(
+        [$class       : 'GitSCMSource',
+         remote       : 'ssh://git@stash.six-group.net:22/sdbi/jenkins-shared-library.git',
+         credentialsId: 'six-baseimages-bitbucket-secret'])
 
-def jobContext = [:]
+def jobContext = getInitialJobContext()
 
 node() {
     stage("Setup") {
         // get url of the image stream registry
-        jobContext.registry = sh returnStdout: true, script: "oc get is jenkins-slave-image-mgmt --template='{{ .status.dockerImageRepository }}'"
+        jobContext.registry = getImageStreamRegistryUrl('jenkins-slave-image-mgmt')
 
         echo "${jobContext}"
 
@@ -18,7 +19,7 @@ node() {
 }
 
 stage("Promote images") {
-    imageMgmtNode() {
+    imageMgmtNode('imageMgmt') {
         copyAndPromote(jobContext, 'latest')
     }
 }
@@ -26,40 +27,4 @@ stage("Promote images") {
 def copyAndPromote(jobContext, tag) {
     sh "skopeoCopy.sh -f ${jobContext.registry}:latest -t artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt:${tag}"
     sh "promoteToArtifactory.sh -i sdbi/jenkins-slave-image-mgmt -t ${tag} -r sdbi-docker-release-local -c"
-}
-
-def imageMgmtNode(Closure body) {
-    // we ned credentials for skopeo (copy images from openshift to artifactory) and for the artifactory promotion.
-    withCredentials([usernameColonPassword(credentialsId: 'artifactory', variable: 'SKOPEO_DEST_CREDENTIALS')]) {
-        withEnv(["SKOPEO_SRC_CREDENTIALS=${dockerToken()}", "ARTIFACTORY_BASIC_AUTH=${env.SKOPEO_DEST_CREDENTIALS}"]) {
-            def label = 'imageMgmt'
-            podTemplate(cloud: 'openshift', inheritFrom: 'maven', label: label,
-                    containers: [containerTemplate(
-                            name: 'jnlp',
-                            image: 'artifactory.six-group.net/sdbi/jenkins-slave-image-mgmt',
-                            alwaysPullImage: true,
-                            args: '${computer.jnlpmac} ${computer.name}',
-                            workingDir: '/tmp')]
-            ) {
-                node(label) {
-                    body.call()
-                }
-            }
-        }
-    }
-}
-
-
-def dockerToken(String login = "serviceaccount") {
-    node() {
-        // Read the auth token from the file defined in the env variable AUTH_TOKEN
-        String token = sh returnStdout: true, script: 'cat ${AUTH_TOKEN}'
-        String prefix
-        if (login) {
-            prefix = "${login}:"
-        } else {
-            prefix = ''
-        }
-        return prefix + token
-    }
 }
