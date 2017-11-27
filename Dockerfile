@@ -4,7 +4,8 @@ FROM openshift3/jenkins-slave-base-rhel7
 
 MAINTAINER HAKA6-Pacemakers <HAKA6-Pacemakers@six-group.com>
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/run-jnlp-client"]
 
 LABEL com.redhat.component="jenkins-slave-image-mgmt" \
       name="jenkins-slave-image-mgmt" \
@@ -22,7 +23,6 @@ RUN yum repolist > /dev/null && \
     yum clean all && \
 	curl --fail --silent --show-error --output /usr/bin/dumb-init https://artifactory.six-group.net/artifactory/generic-release/dumb-init/1.2.0/dumb-init_1.2.0_amd64 &&\
     chmod +x /usr/bin/dumb-init
-
 ADD *.sh /usr/bin/
 
 USER 1001
